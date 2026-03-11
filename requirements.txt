@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+httpx
+pandas
+jinja2
+tenacity
+pydantic

@@ -1,0 +1,7 @@
+CACHE_TYPE = "file"
+
+REQUEST_TIMEOUT = 10
+RATE_LIMIT = 5
+CACHE_TTL = 300
+
+OUTPUT_FILE = "scraped_data.csv"
