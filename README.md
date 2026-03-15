@@ -1,85 +1,61 @@
-Async Web Scraper (FastAPI)
-Overview
+# Async Web Scraper (FastAPI)
 
-The Async Web Scraper is a Python-based web application that collects data from multiple online sources concurrently using asynchronous programming. The project is built using FastAPI, enabling high-performance API endpoints and a lightweight web interface to trigger scraping tasks.
+A production-grade asynchronous web scraper built with FastAPI that collects data from multiple online sources concurrently.
 
-The application scrapes data from multiple sources such as:
+## Overview
 
-FakeStore API (Products)
+This application scrapes data from three sources:
+- **FakeStore API**: Product listings
+- **Hacker News**: Top stories
+- **Reddit**: Top posts in r/python
 
-Hacker News (Top stories)
+## Features
 
-Reddit (Top posts)
+- **Asynchronous Scraping**: Uses Python async/await with httpx for concurrent requests
+- **Redis Caching**: Optional Redis caching with file fallback
+- **Rate Limiting**: Prevents excessive API requests
+- **Retry Logic**: Automatic retries on network errors and 5xx responses
+- **CSV Export**: Download scraped data as CSV
+- **Web Interface**: Simple dashboard to trigger scraping and view results
+- **Type Safety**: Full type hints and Pydantic validation
+- **Logging**: Comprehensive logging with configurable levels
+- **Testing**: Complete test suite with pytest
 
-The scraped data is displayed through a clean web interface where users can:
+## Technologies Used
 
-Scrape all websites at once
+- **Python 3.8+**
+- **FastAPI**: Web framework
+- **httpx**: Async HTTP client
+- **Redis**: Caching (optional)
+- **Pandas**: Data processing
+- **Pydantic**: Data validation
+- **Tenacity**: Retry logic
+- **pytest**: Testing
 
-Scrape one website at a time
+## Installation
 
-View images, titles, prices, and links
+1. Clone the repository
+2. Install dependencies: `pip install -r requirements.txt`
+3. Copy `.env.example` to `.env` and configure settings
+4. Run: `uvicorn app.main:app --reload`
 
-Download the scraped results as a CSV file
+## Configuration
 
-This project demonstrates concepts like asynchronous programming, modular architecture, API integration, and data processing.
+Configure via environment variables or `.env` file:
 
-Features
-Asynchronous Web Scraping
+- `REDIS_URL`: Redis connection URL (defaults to localhost:6379)
+- `CACHE_TTL`: Cache expiration time in seconds
+- `RATE_LIMIT`: Requests per second limit
+- `REQUEST_TIMEOUT`: HTTP request timeout
 
-Uses Python async/await and httpx to scrape multiple sources concurrently for improved performance.
+## API Endpoints
 
-Multiple Data Sources
+- `GET /`: Web interface
+- `GET /scrape`: Scrape all sources concurrently
+- `GET /export`: Download CSV of scraped data
 
-The scraper collects information from:
+## Development
 
-FakeStore API (product listings)
-
-Hacker News (front page stories)
-
-Reddit (top posts)
-
-Selective Scraping
-
-Users can select which website to scrape using a dropdown menu:
-
-All websites
-
-FakeStore
-
-HackerNews
-
-Reddit
-
-Image and Link Support
-
-Product images and article links are displayed directly in the UI.
-
-CSV Export
-
-Users can download the scraped results in CSV format for further analysis.
-
-Clean User Interface
-
-The application provides a simple dashboard where results are displayed in scrollable card layouts.
-
-Caching
-
-A caching mechanism is implemented to avoid unnecessary repeated requests.
-
-Rate Limiting
-
-Rate limiting prevents excessive API requests and simulates production-grade scraping behavior.
-
-Technologies Used
-Technology	Purpose
-Python	Core programming language
-FastAPI	Web framework for API development
-httpx	Asynchronous HTTP requests
-asyncio	Concurrent scraping execution
-Jinja2	Server-side HTML templating
-Pandas	Data processing and CSV export
-HTML/CSS	Frontend interface
-
-WORKFLOW
-
-<img width="644" height="1251" alt="Web_Scrap_Workflow drawio" src="https://github.com/user-attachments/assets/5c940c5a-0731-47bc-8aa3-1794117ac53e" />
+- Format code: `black .`
+- Lint code: `flake8 .`
+- Run tests: `pytest`

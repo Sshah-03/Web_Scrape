@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Web Scraper Dashboard</title>
-    <link rel="stylesheet" href="/static/style.css" />
+    <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
     <div class="container">
@@ -100,7 +100,8 @@
                     throw new Error("Failed to fetch scraped data.");
                 }
 
-                const data = await response.json();
+                const result = await response.json();
+                const data = result.data ?? result;
                 renderResults(data);
                 statusText.textContent = `Loaded ${data.length} records successfully.`;
             } catch (error) {
