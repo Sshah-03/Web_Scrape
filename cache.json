@@ -1,0 +1,242 @@
+{
+  "hn:scrape": {
+    "data": [
+      {
+        "title": "$96 3D-printed rocket that recalculates its mid-air trajectory using a $5 sensor",
+        "url": "https://github.com/novatic14/MANPADS-System-Launcher-and-Rocket",
+        "score": 178
+      },
+      {
+        "title": "A Visual Introduction to Machine Learning (2015)",
+        "url": "https://r2d3.us/visual-intro-to-machine-learning-part-1/",
+        "score": 97
+      },
+      {
+        "title": "A Theory of the World as run by large adult children",
+        "url": "https://tomclancy.info/harold-and-george.html",
+        "score": 19
+      },
+      {
+        "title": "Show HN: Signet \u2013 Autonomous wildfire tracking from satellite and weather data",
+        "url": "https://signet.watch/",
+        "score": 18
+      },
+      {
+        "title": "Generating All 32-Bit Primes (Part I)",
+        "url": "https://hnlyman.github.io/pages/prime32_I.html",
+        "score": 24
+      },
+      {
+        "title": "Rack-mount hydroponics",
+        "url": "https://sa.lj.am/rack-mount-hydroponics/",
+        "score": 219
+      },
+      {
+        "title": "100 hour gap between a vibecoded prototype and a working product",
+        "url": "https://kanfa.macbudkowski.com/vibecoding-cryptosaurus",
+        "score": 11
+      },
+      {
+        "title": "I'm 60 years old. Claude Code killed a passion",
+        "url": null,
+        "score": 47
+      },
+      {
+        "title": "The Appalling Stupidity of Spotify's AI DJ",
+        "url": "https://www.charlespetzold.com/blog/2026/02/The-Appalling-Stupidity-of-Spotifys-AI-DJ.html",
+        "score": 213
+      },
+      {
+        "title": "Examples for the tcpdump and dig man pages",
+        "url": "https://jvns.ca/blog/2026/03/10/examples-for-the-tcpdump-and-dig-man-pages/",
+        "score": 33
+      }
+    ],
+    "timestamp": "2026-03-15T19:00:09.967860"
+  },
+  "reddit:scrape": {
+    "data": [
+      {
+        "title": "I used C++ and nanobind to build a zero-copy graph engine that lets Python train on 50GB datasets",
+        "score": 33,
+        "url": "https://reddit.com/r/Python/comments/1ru9qz9/i_used_c_and_nanobind_to_build_a_zerocopy_graph/"
+      },
+      {
+        "title": "GoPdfSuit v5.0.0: A high-performance PDF engine for Python (now on PyPI)",
+        "score": 27,
+        "url": "https://reddit.com/r/Python/comments/1rtjryf/gopdfsuit_v500_a_highperformance_pdf_engine_for/"
+      },
+      {
+        "title": "termboard \u2014 a local Kanban board that lives entirely in your terminal and a single JSON file",
+        "score": 11,
+        "url": "https://reddit.com/r/Python/comments/1rtmdjs/termboard_a_local_kanban_board_that_lives/"
+      },
+      {
+        "title": "What projects to do alone.",
+        "score": 7,
+        "url": "https://reddit.com/r/Python/comments/1ru90kz/what_projects_to_do_alone/"
+      },
+      {
+        "title": "Best Python approach for extracting structured financial data from inconsistent PDFs?",
+        "score": 6,
+        "url": "https://reddit.com/r/Python/comments/1ru90rt/best_python_approach_for_extracting_structured/"
+      },
+      {
+        "title": "I made @karpathy's Autoresearch work on CPU - and it's NOT bloated",
+        "score": 4,
+        "url": "https://reddit.com/r/Python/comments/1rua9yr/i_made_karpathys_autoresearch_work_on_cpu_and_its/"
+      },
+      {
+        "title": "slixmpp 1.14 released",
+        "score": 3,
+        "url": "https://reddit.com/r/Python/comments/1rtqp1f/slixmpp_114_released/"
+      },
+      {
+        "title": "I open-sourced JobMatch Bot \u2013 a Python pipeline for ATS job aggregation and resume-aware ranking",
+        "score": 3,
+        "url": "https://reddit.com/r/Python/comments/1ru4xv4/i_opensourced_jobmatch_bot_a_python_pipeline_for/"
+      },
+      {
+        "title": "Sunday Daily Thread: What's everyone working on this week?",
+        "score": 2,
+        "url": "https://reddit.com/r/Python/comments/1rtz4pi/sunday_daily_thread_whats_everyone_working_on/"
+      },
+      {
+        "title": "Mesa 4.0 alpha released",
+        "score": 0,
+        "url": "https://reddit.com/r/Python/comments/1ruc3q9/mesa_40_alpha_released/"
+      },
+      {
+        "title": "Suggestions for My Notes App Project",
+        "score": 0,
+        "url": "https://reddit.com/r/Python/comments/1rtnfi4/suggestions_for_my_notes_app_project/"
+      },
+      {
+        "title": "Python Tackles Erd\u0151s #452 Step-Resonance CRT Constructions",
+        "score": 0,
+        "url": "https://reddit.com/r/Python/comments/1rtnor2/python_tackles_erd%C5%91s_452_stepresonance_crt/"
+      },
+      {
+        "title": "Virtual environment setup",
+        "score": 0,
+        "url": "https://reddit.com/r/Python/comments/1ru3mbr/virtual_environment_setup/"
+      },
+      {
+        "title": "Is the new MacBook Neo ok for python network testing?",
+        "score": 0,
+        "url": "https://reddit.com/r/Python/comments/1rtqud0/is_the_new_macbook_neo_ok_for_python_network/"
+      },
+      {
+        "title": "Stop using range(len()) in your Python loops enumerate() exists and it is cleaner",
+        "score": 0,
+        "url": "https://reddit.com/r/Python/comments/1ru5k44/stop_using_rangelen_in_your_python_loops/"
+      }
+    ],
+    "timestamp": "2026-03-15T19:00:10.799398"
+  },
+  "fakestore:scrape": {
+    "data": [
+      {
+        "title": "Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops",
+        "price": 109.95,
+        "category": "men's clothing"
+      },
+      {
+        "title": "Mens Casual Premium Slim Fit T-Shirts ",
+        "price": 22.3,
+        "category": "men's clothing"
+      },
+      {
+        "title": "Mens Cotton Jacket",
+        "price": 55.99,
+        "category": "men's clothing"
+      },
+      {
+        "title": "Mens Casual Slim Fit",
+        "price": 15.99,
+        "category": "men's clothing"
+      },
+      {
+        "title": "John Hardy Women's Legends Naga Gold & Silver Dragon Station Chain Bracelet",
+        "price": 695.0,
+        "category": "jewelery"
+      },
+      {
+        "title": "Solid Gold Petite Micropave ",
+        "price": 168.0,
+        "category": "jewelery"
+      },
+      {
+        "title": "White Gold Plated Princess",
+        "price": 9.99,
+        "category": "jewelery"
+      },
+      {
+        "title": "Pierced Owl Rose Gold Plated Stainless Steel Double",
+        "price": 10.99,
+        "category": "jewelery"
+      },
+      {
+        "title": "WD 2TB Elements Portable External Hard Drive - USB 3.0 ",
+        "price": 64.0,
+        "category": "electronics"
+      },
+      {
+        "title": "SanDisk SSD PLUS 1TB Internal SSD - SATA III 6 Gb/s",
+        "price": 109.0,
+        "category": "electronics"
+      },
+      {
+        "title": "Silicon Power 256GB SSD 3D NAND A55 SLC Cache Performance Boost SATA III 2.5",
+        "price": 109.0,
+        "category": "electronics"
+      },
+      {
+        "title": "WD 4TB Gaming Drive Works with Playstation 4 Portable External Hard Drive",
+        "price": 114.0,
+        "category": "electronics"
+      },
+      {
+        "title": "Acer SB220Q bi 21.5 inches Full HD (1920 x 1080) IPS Ultra-Thin",
+        "price": 599.0,
+        "category": "electronics"
+      },
+      {
+        "title": "Samsung 49-Inch CHG90 144Hz Curved Gaming Monitor (LC49HG90DMNXZA) \u2013 Super Ultrawide Screen QLED ",
+        "price": 999.99,
+        "category": "electronics"
+      },
+      {
+        "title": "BIYLACLESEN Women's 3-in-1 Snowboard Jacket Winter Coats",
+        "price": 56.99,
+        "category": "women's clothing"
+      },
+      {
+        "title": "Lock and Love Women's Removable Hooded Faux Leather Moto Biker Jacket",
+        "price": 29.95,
+        "category": "women's clothing"
+      },
+      {
+        "title": "Rain Jacket Women Windbreaker Striped Climbing Raincoats",
+        "price": 39.99,
+        "category": "women's clothing"
+      },
+      {
+        "title": "MBJ Women's Solid Short Sleeve Boat Neck V ",
+        "price": 9.85,
+        "category": "women's clothing"
+      },
+      {
+        "title": "Opna Women's Short Sleeve Moisture",
+        "price": 7.95,
+        "category": "women's clothing"
+      },
+      {
+        "title": "DANVOUY Womens T Shirt Casual Cotton Short",
+        "price": 12.99,
+        "category": "women's clothing"
+      }
+    ],
+    "timestamp": "2026-03-15T19:00:11.404168"
+  }
+}

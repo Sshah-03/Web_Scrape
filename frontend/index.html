@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Scraper Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+    <div class="container">
+        <header class="hero">
+            <h1>Web Scraper Dashboard</h1>
+            <p>Scrape Hacker News, Reddit, and FakeStore data from one place.</p>
+        </header>
+
+        <section class="actions">
+            <button id="scrapeBtn">Run Scraper</button>
+            <a href="/export" class="download-btn">Download CSV</a>
+        </section>
+
+        <section class="cards">
+            <div class="card">
+                <h3>Hacker News</h3>
+                <p>Top stories with title, URL, and score.</p>
+            </div>
+            <div class="card">
+                <h3>Reddit</h3>
+                <p>Top Python posts with title, link, and score.</p>
+            </div>
+            <div class="card">
+                <h3>FakeStore API</h3>
+                <p>Product data with title, price, and category.</p>
+            </div>
+        </section>
+
+        <section class="results-section">
+            <div class="results-header">
+                <h2>Scraped Results</h2>
+                <span id="status">Click "Run Scraper" to load data.</span>
+            </div>
+
+            <div class="table-wrapper">
+                <table id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>URL</th>
+                            <th>Score / Price</th>
+                            <th>Category</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const scrapeBtn = document.getElementById("scrapeBtn");
+        const resultsBody = document.getElementById("resultsBody");
+        const statusText = document.getElementById("status");
+
+        function createCell(content) {
+            const td = document.createElement("td");
+            td.innerHTML = content;
+            return td;
+        }
+
+        function renderResults(data) {
+            resultsBody.innerHTML = "";
+
+            data.forEach(item => {
+                const row = document.createElement("tr");
+
+                const title = item.title || "-";
+                const url = item.url
+                    ? `<a href="${item.url}" target="_blank" rel="noopener noreferrer">Open</a>`
+                    : "-";
+                const scoreOrPrice = item.score ?? item.price ?? "-";
+                const category = item.category || "-";
+
+                row.appendChild(createCell(title));
+                row.appendChild(createCell(url));
+                row.appendChild(createCell(String(scoreOrPrice)));
+                row.appendChild(createCell(category));
+
+                resultsBody.appendChild(row);
+            });
+        }
+
+        scrapeBtn.addEventListener("click", async () => {
+            statusText.textContent = "Scraping data...";
+            scrapeBtn.disabled = true;
+            scrapeBtn.textContent = "Loading...";
+
+            try {
+                const response = await fetch("/scrape");
+                if (!response.ok) {
+                    throw new Error("Failed to fetch scraped data.");
+                }
+
+                const data = await response.json();
+                renderResults(data);
+                statusText.textContent = `Loaded ${data.length} records successfully.`;
+            } catch (error) {
+                statusText.textContent = "Error loading scraped data.";
+                resultsBody.innerHTML = `
+                    <tr>
+                        <td colspan="4">Failed to load results. Check the terminal logs.</td>
+                    </tr>
+                `;
+            } finally {
+                scrapeBtn.disabled = false;
+                scrapeBtn.textContent = "Run Scraper";
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,26 +1,55 @@
-import time
+import json
+import redis
 
-CACHE = {}
-CACHE_TTL = 60
+class CacheManager:
+
+    def __init__(self):
+        try:
+            self.redis = redis.Redis(host="localhost", port=6379, decode_responses=True)
+            self.redis.ping()
+            print("Redis cache enabled")
+            self.use_redis = True
+        except:
+            print("Redis unavailable, using file cache")
+            self.use_redis = False
+            self.cache_file = "cache.json"
+
+    def get(self, key):
+
+        if self.use_redis:
+            data = self.redis.get(key)
+            return json.loads(data) if data else None
+
+        try:
+            with open(self.cache_file) as f:
+                cache = json.load(f)
+            return cache.get(key)
+        except:
+            return None
 
 
-def cache(func):
+    def set(self, key, value):
 
-    async def wrapper(*args):
+        if self.use_redis:
+            self.redis.setex(key, 300, json.dumps(value, default=str))
+            return
 
-        key = func.__name__
+        try:
+            cache = {}
 
-        if key in CACHE:
+            try:
+                with open(self.cache_file) as f:
+                    cache = json.load(f)
+            except:
+                pass
 
-            data, timestamp = CACHE[key]
+            cache[key] = value
 
-            if time.time() - timestamp < CACHE_TTL:
-                return data
+            with open(self.cache_file, "w") as f:
+                json.dump(cache, f, indent=2)
 
-        result = await func(*args)
+        except:
+            pass
 
-        CACHE[key] = (result, time.time())
 
-        return result
-
-    return wrapper
+cache_manager = CacheManager()
