@@ -1,70 +1,98 @@
-import pytest
+"""Tests for scraper validation and normalization."""
+
 from unittest.mock import AsyncMock, patch
+
+import pytest
+from pydantic import ValidationError
+
+from app.models.schemas import FakeStoreItem, HackerNewsItem, RedditItem
+from app.scrapers.fakestore import FakeStoreScraper
 from app.scrapers.hacker_news import HackerNewsScraper
 from app.scrapers.reddit import RedditScraper
-from app.scrapers.fakestore import FakeStoreScraper
-from app.models.schemas import HackerNewsItem, RedditItem, FakeStoreItem
 
 
-class TestScrapers:
-    """Test cases for web scrapers."""
+@pytest.mark.asyncio()
+async def test_hacker_news_scraper_returns_valid_items() -> None:
+    """Hacker News scraper should normalize valid items."""
+    scraper = HackerNewsScraper()
 
-    @pytest.mark.asyncio
-    async def test_hacker_news_scraper(self):
-        """Test Hacker News scraper."""
-        scraper = HackerNewsScraper()
+    with patch.object(scraper, "fetch", new_callable=AsyncMock) as mock_fetch:
+        mock_fetch.side_effect = [
+            [1, 2],
+            {"title": "First", "url": "https://example.com/1", "score": 10},
+            {"title": "Second", "url": "https://example.com/2", "score": 20},
+        ]
 
-        # Mock the fetch method
-        mock_data = [1, 2, 3]
-        item_data = {"title": "Test Story", "url": "https://example.com", "score": 100}
+        results = await scraper.scrape()
 
-        with patch.object(scraper, 'fetch', new_callable=AsyncMock) as mock_fetch:
-            mock_fetch.side_effect = [mock_data, item_data, item_data, item_data]
+    assert results == [
+        HackerNewsItem(title="First", url="https://example.com/1", score=10),
+        HackerNewsItem(title="Second", url="https://example.com/2", score=20),
+    ]
 
-            results = await scraper.scrape()
 
-            assert len(results) == 3
-            assert all(isinstance(item, HackerNewsItem) for item in results)
-            assert results[0].title == "Test Story"
+@pytest.mark.asyncio()
+async def test_hacker_news_scraper_raises_on_invalid_top_story_payload() -> None:
+    """Hacker News scraper should fail fast on invalid top story lists."""
+    scraper = HackerNewsScraper()
 
-    @pytest.mark.asyncio
-    async def test_reddit_scraper(self):
-        """Test Reddit scraper."""
-        scraper = RedditScraper()
+    with patch.object(scraper, "fetch", new_callable=AsyncMock, return_value={"invalid": True}):
+        with pytest.raises(ValidationError):
+            await scraper.scrape()
 
-        mock_data = {
+
+@pytest.mark.asyncio()
+async def test_reddit_scraper_returns_valid_items() -> None:
+    """Reddit scraper should validate the response wrapper."""
+    scraper = RedditScraper()
+
+    with patch.object(scraper, "fetch", new_callable=AsyncMock) as mock_fetch:
+        mock_fetch.return_value = {
             "data": {
                 "children": [
-                    {"data": {"title": "Test Post", "score": 50, "permalink": "/r/test/123"}}
+                    {"data": {"title": "Test", "score": 3, "permalink": "/r/python/comments/1"}}
                 ]
             }
         }
 
-        with patch.object(scraper, 'fetch', new_callable=AsyncMock) as mock_fetch:
-            mock_fetch.return_value = mock_data
+        results = await scraper.scrape()
 
-            results = await scraper.scrape()
+    assert results == [
+        RedditItem(title="Test", score=3, url="https://reddit.com/r/python/comments/1")
+    ]
 
-            assert len(results) == 1
-            assert isinstance(results[0], RedditItem)
-            assert results[0].title == "Test Post"
-            assert results[0].url == "https://reddit.com/r/test/123"
 
-    @pytest.mark.asyncio
-    async def test_fakestore_scraper(self):
-        """Test FakeStore scraper."""
-        scraper = FakeStoreScraper()
+@pytest.mark.asyncio()
+async def test_reddit_scraper_raises_on_invalid_structure() -> None:
+    """Reddit scraper should reject malformed API responses."""
+    scraper = RedditScraper()
 
-        mock_data = [
-            {"title": "Test Product", "price": 29.99, "category": "electronics"}
-        ]
+    with patch.object(scraper, "fetch", new_callable=AsyncMock, return_value={"unexpected": []}):
+        with pytest.raises(ValidationError):
+            await scraper.scrape()
 
-        with patch.object(scraper, 'fetch', new_callable=AsyncMock) as mock_fetch:
-            mock_fetch.return_value = mock_data
 
-            results = await scraper.scrape()
+@pytest.mark.asyncio()
+async def test_fakestore_scraper_returns_valid_items() -> None:
+    """FakeStore scraper should normalize product data."""
+    scraper = FakeStoreScraper()
 
-            assert len(results) == 1
-            assert isinstance(results[0], FakeStoreItem)
-            assert results[0].title == "Test Product"
-            assert results[0].price == 29.99
+    with patch.object(
+        scraper,
+        "fetch",
+        new_callable=AsyncMock,
+        return_value=[{"title": "Keyboard", "price": 99.0, "category": "electronics"}],
+    ):
+        results = await scraper.scrape()
+
+    assert results == [FakeStoreItem(title="Keyboard", price=99.0, category="electronics")]
+
+
+@pytest.mark.asyncio()
+async def test_fakestore_scraper_raises_on_invalid_structure() -> None:
+    """FakeStore scraper should reject non-list payloads."""
+    scraper = FakeStoreScraper()
+
+    with patch.object(scraper, "fetch", new_callable=AsyncMock, return_value={"unexpected": []}):
+        with pytest.raises(ValidationError):
+            await scraper.scrape()

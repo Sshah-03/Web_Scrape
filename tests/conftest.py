@@ -1,30 +1,35 @@
+"""Shared pytest fixtures."""
+
+from collections.abc import Generator
+from pathlib import Path
+from unittest.mock import AsyncMock, patch
+
 import pytest
-import asyncio
-from unittest.mock import AsyncMock
-from app.config import Settings
+from fastapi.testclient import TestClient
+
+from app.main import app
 
 
-@pytest.fixture
-def event_loop():
-    """Create an instance of the default event loop for the test session."""
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
+@pytest.fixture()
+def client() -> Generator[TestClient, None, None]:
+    """Provide a FastAPI test client."""
+    with TestClient(app) as test_client:
+        yield test_client
 
 
-@pytest.fixture
-def mock_settings():
-    """Mock settings for testing."""
-    return Settings(
-        APP_NAME="Test Scraper",
-        HACKERNEWS_URL="https://test-hn.com",
-        HACKERNEWS_ITEM_URL="https://test-hn.com/item/{id}.json",
-        REDDIT_URL="https://test-reddit.com",
-        FAKESTORE_URL="https://test-fakestore.com",
-        REQUEST_TIMEOUT=5,
-        RATE_LIMIT=10,
-        REDIS_URL="redis://localhost:6379",
-        CACHE_TTL=60,
-        OUTPUT_FILE="test_output.csv",
-        FILE_CACHE="test_cache.json"
-    )
+@pytest.fixture()
+def temp_output_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Redirect CSV exports to a temporary file."""
+    output_file = tmp_path / "exports" / "scraped_data.csv"
+    monkeypatch.setattr("app.config.settings.OUTPUT_FILE", str(output_file))
+    return output_file
+
+
+@pytest.fixture(autouse=True)
+def disable_global_cache() -> Generator[None, None, None]:
+    """Disable shared cache side effects between tests."""
+    with patch("app.utils.decorators.cache_manager.get", new_callable=AsyncMock) as mock_get, patch(
+        "app.utils.decorators.cache_manager.set", new_callable=AsyncMock
+    ):
+        mock_get.return_value = None
+        yield
