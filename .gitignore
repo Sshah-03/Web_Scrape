@@ -1,4 +1,4 @@
-# Python
+# Python bytecode
 __pycache__/
 *.py[cod]
 *$py.class
@@ -6,31 +6,48 @@ __pycache__/
 # Virtual environments
 venv/
 .venv/
+env/
+ENV/
 
-# Distribution / packaging
+# Packaging / build artifacts
 build/
 dist/
-*.egg-info/
+site/
 .eggs/
+*.egg
+*.egg-info/
+pip-wheel-metadata/
 
-# Pytest
+# Test, type-check, and coverage outputs
 .pytest_cache/
+.mypy_cache/
+.hypothesis/
+.tox/
+.nox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
 
-# IDEs
-.vscode/
-.idea/
-*.iml
+# Local caches
+.cache/
+cache.json
 
-# Environment variables
+# Environment and local config
 .env
 .env.*
-
-# Caches
-cache.json
-.venv
+.python-version
 
 # Logs
 *.log
+
+# Generated project data
+scraped_data.csv
+
+# IDEs and editors
+.vscode/
+.idea/
+*.iml
 
 # OS files
 .DS_Store
