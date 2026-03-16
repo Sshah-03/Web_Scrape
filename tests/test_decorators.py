@@ -1,54 +1,62 @@
-import pytest
-import asyncio
+"""Tests for caching and rate limiting decorators."""
+
 from unittest.mock import AsyncMock, patch
+
+import pytest
+
 from app.utils.decorators import cached, rate_limit
 
 
-class TestDecorators:
-    """Test cases for caching and rate limiting decorators."""
+@pytest.mark.asyncio()
+async def test_cached_decorator_returns_cached_value() -> None:
+    """Cached decorator should return a cached value on hit."""
+    mock_cache = AsyncMock()
+    mock_cache.get.return_value = "cached"
 
-    @pytest.mark.asyncio
-    async def test_cached_decorator_hit(self):
-        """Test cached decorator with cache hit."""
-        mock_cache = AsyncMock()
-        mock_cache.get.return_value = "cached_result"
+    with patch("app.utils.decorators.cache_manager", mock_cache):
 
-        with patch('app.utils.decorators.cache_manager', mock_cache):
-            @cached("test")
-            async def test_func():
-                return "new_result"
+        @cached("demo")
+        async def test_func() -> str:
+            return "fresh"
 
-            result = await test_func()
-            assert result == "cached_result"
-            mock_cache.get.assert_called_once()
-            mock_cache.set.assert_not_called()
+        result = await test_func()
 
-    @pytest.mark.asyncio
-    async def test_cached_decorator_miss(self):
-        """Test cached decorator with cache miss."""
-        mock_cache = AsyncMock()
-        mock_cache.get.return_value = None
+    assert result == "cached"
+    mock_cache.set.assert_not_called()
 
-        with patch('app.utils.decorators.cache_manager', mock_cache):
-            @cached("test")
-            async def test_func():
-                return "new_result"
 
-            result = await test_func()
-            assert result == "new_result"
-            mock_cache.get.assert_called_once()
-            mock_cache.set.assert_called_once_with("test:test_func", "new_result")
+@pytest.mark.asyncio()
+async def test_cached_decorator_stores_miss_with_argument_sensitive_key() -> None:
+    """Cache keys should include call arguments."""
+    mock_cache = AsyncMock()
+    mock_cache.get.return_value = None
 
-    @pytest.mark.asyncio
-    async def test_rate_limit_decorator(self):
-        """Test rate limit decorator."""
-        mock_limiter = AsyncMock()
+    with patch("app.utils.decorators.cache_manager", mock_cache):
 
-        with patch('app.utils.decorators.rate_limiter', mock_limiter):
-            @rate_limit
-            async def test_func():
-                return "result"
+        @cached("demo")
+        async def test_func(value: str) -> str:
+            return value.upper()
 
-            result = await test_func()
-            assert result == "result"
-            mock_limiter.wait.assert_called_once()
+        result = await test_func("abc")
+
+    assert result == "ABC"
+    cache_key = mock_cache.set.call_args.args[0]
+    assert cache_key.startswith("demo:test_func:")
+    assert "abc" in cache_key
+
+
+@pytest.mark.asyncio()
+async def test_rate_limit_decorator_waits_before_execution() -> None:
+    """Rate limit decorator should defer to the shared limiter."""
+    mock_limiter = AsyncMock()
+
+    with patch("app.utils.decorators.rate_limiter", mock_limiter):
+
+        @rate_limit
+        async def test_func() -> str:
+            return "done"
+
+        result = await test_func()
+
+    assert result == "done"
+    mock_limiter.wait.assert_awaited_once()

@@ -1,36 +1,36 @@
+"""Rate limiting utilities."""
 
 import asyncio
-import time
 import logging
-from typing import NoReturn
+import time
+from threading import Lock
+
 from app.config import settings
 
 logger = logging.getLogger(__name__)
 
 
 class RateLimiter:
-    """Rate limiter using token bucket algorithm with async lock."""
+    """Thread-safe async rate limiter."""
 
     def __init__(self, rate: int) -> None:
-        """Initialize the rate limiter.
-
-        Args:
-            rate: Maximum number of requests per second.
-        """
+        """Initialize the rate limiter."""
         self.rate = rate
-        self.lock = asyncio.Lock()
-        self.last_call = 0.0
+        self._interval = 1 / rate
+        self._lock = Lock()
+        self._next_available = 0.0
 
     async def wait(self) -> None:
-        """Wait if necessary to maintain the rate limit."""
-        async with self.lock:
-            now = time.time()
-            interval = 1 / self.rate
-            diff = now - self.last_call
-            if diff < interval:
-                await asyncio.sleep(interval - diff)
-            self.last_call = time.time()
-            logger.debug("Rate limiter applied")
+        """Wait if necessary to maintain the configured rate limit."""
+        with self._lock:
+            now = time.monotonic()
+            scheduled = max(now, self._next_available)
+            delay = max(0.0, scheduled - now)
+            self._next_available = scheduled + self._interval
+
+        if delay > 0:
+            logger.debug("Rate limiter sleeping for %.3f seconds", delay)
+            await asyncio.sleep(delay)
 
 
 rate_limiter = RateLimiter(settings.RATE_LIMIT)

@@ -1,10 +1,12 @@
+"""Hacker News scraper."""
 
-from typing import List
-from pydantic import ValidationError
 import logging
-from app.scrapers.base import BaseScraper
-from app.models.schemas import HackerNewsItem
+
+from pydantic import ValidationError
+
 from app.config import settings
+from app.models.schemas import HackerNewsItem, HackerNewsItemResponse, HackerNewsTopStoriesResponse
+from app.scrapers.base import BaseScraper
 from app.utils.decorators import cached, rate_limit
 
 logger = logging.getLogger(__name__)
@@ -15,26 +17,23 @@ class HackerNewsScraper(BaseScraper):
 
     @cached("hn")
     @rate_limit
-    async def scrape(self) -> List[HackerNewsItem]:
-        """Scrape top stories from Hacker News.
+    async def scrape(self) -> list[HackerNewsItem]:
+        """Scrape top stories from Hacker News."""
+        raw_ids = await self.fetch(settings.HACKERNEWS_URL)
+        ids = HackerNewsTopStoriesResponse.model_validate(raw_ids).root
 
-        Returns:
-            List of HackerNewsItem objects.
-        """
-        ids = await self.fetch(settings.HACKERNEWS_URL)
-        results = []
-        for i in ids[:10]:
+        results: list[HackerNewsItem] = []
+        for item_id in ids[: settings.SCRAPE_LIMIT]:
             try:
-                data = await self.fetch(settings.HACKERNEWS_ITEM_URL.format(id=i))
-                item = HackerNewsItem(
-                    title=data.get("title", ""),
-                    url=data.get("url"),
-                    score=data.get("score", 0)
+                raw_data = await self.fetch(settings.HACKERNEWS_ITEM_URL.format(id=item_id))
+                item = HackerNewsItem.model_validate(
+                    HackerNewsItemResponse.model_validate(raw_data).model_dump(mode="json")
                 )
                 results.append(item)
-            except ValidationError as e:
-                logger.error("Validation error for HN item %s: %s", i, e)
-            except Exception as e:
-                logger.error("Error fetching HN item %s: %s", i, e)
+            except ValidationError as exc:
+                logger.error("Validation error for Hacker News item %s: %s", item_id, exc)
+            except Exception as exc:
+                logger.error("Error fetching Hacker News item %s: %s", item_id, exc)
+
         logger.info("Scraped %d Hacker News items", len(results))
         return results
