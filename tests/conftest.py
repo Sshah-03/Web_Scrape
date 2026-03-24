@@ -25,6 +25,14 @@ def temp_output_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     return output_file
 
 
+@pytest.fixture()
+def temp_snapshot_db(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Redirect snapshot storage to a temporary SQLite database."""
+    database_file = tmp_path / "data" / "snapshots.db"
+    monkeypatch.setattr("app.config.settings.SNAPSHOT_DB_FILE", str(database_file))
+    return database_file
+
+
 @pytest.fixture(autouse=True)
 def disable_global_cache() -> Generator[None, None, None]:
     """Disable shared cache side effects between tests."""

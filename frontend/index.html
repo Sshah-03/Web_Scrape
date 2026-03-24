@@ -15,6 +15,7 @@
 
         <section class="actions">
             <button id="scrapeBtn">Run Scraper</button>
+            <button id="snapshotBtn" disabled>Save Snapshot</button>
             <a href="/export" class="download-btn">Download CSV</a>
         </section>
 
@@ -54,12 +55,39 @@
                 </table>
             </div>
         </section>
+
+        <section class="snapshots-section">
+            <div class="results-header">
+                <h2>Saved Snapshots</h2>
+                <button id="refreshSnapshotsBtn" type="button">Refresh Snapshots</button>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Snapshot ID</th>
+                            <th>Created At</th>
+                            <th>Items</th>
+                        </tr>
+                    </thead>
+                    <tbody id="snapshotsBody">
+                        <tr>
+                            <td colspan="3">No snapshots loaded yet.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </div>
 
     <script>
         const scrapeBtn = document.getElementById("scrapeBtn");
+        const snapshotBtn = document.getElementById("snapshotBtn");
+        const refreshSnapshotsBtn = document.getElementById("refreshSnapshotsBtn");
         const resultsBody = document.getElementById("resultsBody");
+        const snapshotsBody = document.getElementById("snapshotsBody");
         const statusText = document.getElementById("status");
+        let currentResults = [];
 
         function createCell(content) {
             const td = document.createElement("td");
@@ -67,7 +95,17 @@
             return td;
         }
 
+        async function extractErrorMessage(response, fallbackMessage) {
+            try {
+                const payload = await response.json();
+                return payload.detail || fallbackMessage;
+            } catch (error) {
+                return fallbackMessage;
+            }
+        }
+
         function renderResults(data) {
+            currentResults = data;
             resultsBody.innerHTML = "";
 
             data.forEach(item => {
@@ -87,6 +125,53 @@
 
                 resultsBody.appendChild(row);
             });
+
+            snapshotBtn.disabled = data.length === 0;
+        }
+
+        function renderSnapshots(snapshots) {
+            snapshotsBody.innerHTML = "";
+
+            if (snapshots.length === 0) {
+                snapshotsBody.innerHTML = `
+                    <tr>
+                        <td colspan="3">No snapshots saved yet.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            snapshots.forEach(snapshot => {
+                const row = document.createElement("tr");
+                row.appendChild(createCell(String(snapshot.snapshot_id)));
+                row.appendChild(createCell(snapshot.created_at));
+                row.appendChild(createCell(String(snapshot.item_count)));
+                snapshotsBody.appendChild(row);
+            });
+        }
+
+        async function loadSnapshots() {
+            refreshSnapshotsBtn.disabled = true;
+            refreshSnapshotsBtn.textContent = "Loading...";
+
+            try {
+                const response = await fetch("/snapshots");
+                if (!response.ok) {
+                    throw new Error(await extractErrorMessage(response, "Failed to fetch snapshots."));
+                }
+
+                const result = await response.json();
+                renderSnapshots(result.snapshots ?? []);
+            } catch (error) {
+                snapshotsBody.innerHTML = `
+                    <tr>
+                        <td colspan="3">${error.message}</td>
+                    </tr>
+                `;
+            } finally {
+                refreshSnapshotsBtn.disabled = false;
+                refreshSnapshotsBtn.textContent = "Refresh Snapshots";
+            }
         }
 
         scrapeBtn.addEventListener("click", async () => {
@@ -97,7 +182,7 @@
             try {
                 const response = await fetch("/scrape");
                 if (!response.ok) {
-                    throw new Error("Failed to fetch scraped data.");
+                    throw new Error(await extractErrorMessage(response, "Failed to fetch scraped data."));
                 }
 
                 const result = await response.json();
@@ -105,7 +190,9 @@
                 renderResults(data);
                 statusText.textContent = `Loaded ${data.length} records successfully.`;
             } catch (error) {
-                statusText.textContent = "Error loading scraped data.";
+                currentResults = [];
+                snapshotBtn.disabled = true;
+                statusText.textContent = error.message;
                 resultsBody.innerHTML = `
                     <tr>
                         <td colspan="4">Failed to load results. Check the terminal logs.</td>
@@ -116,6 +203,44 @@
                 scrapeBtn.textContent = "Run Scraper";
             }
         });
+
+        snapshotBtn.addEventListener("click", async () => {
+            if (currentResults.length === 0) {
+                statusText.textContent = "Run the scraper before saving a snapshot.";
+                return;
+            }
+
+            snapshotBtn.disabled = true;
+            snapshotBtn.textContent = "Saving...";
+            statusText.textContent = "Saving snapshot to database...";
+
+            try {
+                const response = await fetch("/snapshots", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ data: currentResults })
+                });
+
+                if (!response.ok) {
+                    throw new Error(await extractErrorMessage(response, "Failed to save snapshot."));
+                }
+
+                const result = await response.json();
+                statusText.textContent = `Snapshot #${result.snapshot_id} saved with ${result.item_count} records.`;
+                await loadSnapshots();
+            } catch (error) {
+                statusText.textContent = error.message;
+            } finally {
+                snapshotBtn.disabled = currentResults.length === 0;
+                snapshotBtn.textContent = "Save Snapshot";
+            }
+        });
+
+        refreshSnapshotsBtn.addEventListener("click", loadSnapshots);
+
+        loadSnapshots();
     </script>
 </body>
 </html>

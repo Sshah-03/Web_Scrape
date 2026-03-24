@@ -32,6 +32,7 @@ class Settings(BaseSettings):
 
     OUTPUT_FILE: str = "scraped_data.csv"
     FILE_CACHE: str = "cache.json"
+    SNAPSHOT_DB_FILE: str = "snapshots.db"
 
 
 settings = Settings()

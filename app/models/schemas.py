@@ -35,6 +35,35 @@ class ScrapeResponse(BaseModel):
     data: list[Union[HackerNewsItem, RedditItem, FakeStoreItem]]
 
 
+class SnapshotCreateRequest(BaseModel):
+    """Request model for storing a scraped-data snapshot."""
+
+    data: list[Union[HackerNewsItem, RedditItem, FakeStoreItem]]
+
+
+class SnapshotCreateResponse(BaseModel):
+    """Response model returned after a snapshot is stored."""
+
+    message: str
+    snapshot_id: int
+    created_at: str
+    item_count: int
+
+
+class SnapshotSummary(BaseModel):
+    """Summary information for a stored snapshot."""
+
+    snapshot_id: int
+    created_at: str
+    item_count: int
+
+
+class SnapshotListResponse(BaseModel):
+    """Response model for recent saved snapshots."""
+
+    snapshots: list[SnapshotSummary]
+
+
 class ExportResponse(BaseModel):
     """Response metadata for export endpoints."""
 

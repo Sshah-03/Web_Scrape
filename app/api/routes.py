@@ -4,15 +4,21 @@ import asyncio
 import logging
 from pathlib import Path
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import FileResponse
 
 from app.config import settings
-from app.models.schemas import ScrapeResponse
+from app.models.schemas import (
+    ScrapeResponse,
+    SnapshotCreateRequest,
+    SnapshotCreateResponse,
+    SnapshotListResponse,
+)
 from app.scrapers.fakestore import FakeStoreScraper
 from app.scrapers.hacker_news import HackerNewsScraper
 from app.scrapers.reddit import RedditScraper
 from app.services.export_service import export_to_csv
+from app.services.snapshot_service import list_snapshots, save_snapshot
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +50,10 @@ async def scrape_all() -> ScrapeResponse:
             all_data.extend(result)
             logger.info("Scraped %d items from %s", len(result), source_name)
 
+        try:
+            export_to_csv([item.model_dump(mode="json") for item in all_data])
+        except Exception as exc:
+            logger.error("CSV refresh failed after scrape: %s", exc)
         logger.info("Successfully scraped %d items from all sources", len(all_data))
         return ScrapeResponse(data=all_data)
     except Exception as exc:
@@ -68,3 +78,29 @@ async def export_csv() -> FileResponse:
     except Exception as exc:
         logger.error("Error during CSV export: %s", exc)
         raise HTTPException(status_code=500, detail="Export failed") from exc
+
+
+@router.post("/snapshots", response_model=SnapshotCreateResponse)
+async def create_snapshot(payload: SnapshotCreateRequest) -> SnapshotCreateResponse:
+    """Store the currently displayed scraped data as a snapshot."""
+    try:
+        if not payload.data:
+            raise HTTPException(status_code=400, detail="Snapshot data cannot be empty")
+
+        snapshot = save_snapshot([item.model_dump(mode="json") for item in payload.data])
+        return SnapshotCreateResponse(message="Snapshot stored successfully", **snapshot)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.error("Error while saving snapshot: %s", exc)
+        raise HTTPException(status_code=500, detail="Snapshot save failed") from exc
+
+
+@router.get("/snapshots", response_model=SnapshotListResponse)
+async def get_snapshots(limit: int = Query(default=20, ge=1, le=100)) -> SnapshotListResponse:
+    """List the most recent saved snapshots."""
+    try:
+        return SnapshotListResponse(snapshots=list_snapshots(limit=limit))
+    except Exception as exc:
+        logger.error("Error while listing snapshots: %s", exc)
+        raise HTTPException(status_code=500, detail="Snapshot list failed") from exc

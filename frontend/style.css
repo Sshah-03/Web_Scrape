@@ -91,6 +91,14 @@ button:disabled {
     padding: 20px;
 }
 
+.snapshots-section {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    padding: 20px;
+    margin-top: 24px;
+}
+
 .results-header {
     display: flex;
     justify-content: space-between;

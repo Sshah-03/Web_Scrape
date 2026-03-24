@@ -1,4 +1,4 @@
-#!/Users/sshah/Documents/Web_Scraper/Web_Scrape/venv/bin/python3.13
+#!/Users/sshah/Documents/Web_Scraper/Web_Scrape/venv/bin/python3.11
 import sys
 from uvicorn.main import main
 if __name__ == '__main__':
